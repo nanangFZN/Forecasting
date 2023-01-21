@@ -33,15 +33,23 @@
   </thead>
   <tbody>
     <?php
-    $data = array();
-    $year = "2022";
+      $data = array();
+      $year = 2022;
+      $startmonth = 1;//tulis 1 untuk mulai dari januari
+      $countYear = 1;// tulis 1 untuk satu tahun
+      $tempmonth = $startmonth;
+      $tempyear = $year;
       include 'action/connection.php';
-      for ($i=1; $i <= 12; $i++) {
-        $month = $i < 10 ? "0".$i : $i;
+      for ($i=1; $i <= ($countYear * 12); $i++) {
+        if ($tempmonth == 13) {
+          $tempmonth=1;
+          $tempyear++;
+        }
+        $tempmonth = $tempmonth < 10 ? "0".$tempmonth : $tempmonth;
         if (isset($_GET['cake'])) {
-            $sql = mysqli_query($connection,"SELECT * FROM soldproduct where id_product = '".$_GET['cake']."' and date like '".$year."-".$month."%'");
+            $sql = mysqli_query($connection,"SELECT * FROM soldproduct where id_product = '".$_GET['cake']."' and date like '".$tempyear."-".$tempmonth."%'");
         }else{
-            $sql = mysqli_query($connection,"SELECT * FROM soldproduct where date like '".$year."-".$month."%'");
+            $sql = mysqli_query($connection,"SELECT * FROM soldproduct where date like '".$tempyear."-".$tempmonth."%'");
         }
       $qty = 0;
       foreach ($sql as $row) {
@@ -51,7 +59,7 @@
     ?>
     <tr>
       <th scope="row"><?php echo $i;?></th>
-      <td><?php echo $year."-".$month;?></td>
+      <td><?php echo $tempyear."-".$tempmonth;?></td>
       <td><?php echo $qty;?></td>
       <td>
         <?php
@@ -62,12 +70,15 @@
                 // echo @$data['qty'][$m];
                 // echo " ";
             }
-            echo round($tempqty/$request);
+            $res = round($tempqty/$request);
+            $data['ARIMA']['qty'][$m] = $res;
+            echo $res;
         ?>
       </td>
     </tr>
     <?php 
-      }
+        $tempmonth++;
+      }    
 ?>
     
   </tbody>
